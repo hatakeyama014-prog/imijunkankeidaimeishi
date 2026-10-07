@@ -6,16 +6,16 @@
   <title>意味順ドロップ（関係代名詞編）</title>
   <style>
     body { font-family: sans-serif; background: #2c3e50; color: #fff; text-align: center; margin: 0; padding: 15px; user-select: none; }
-    h1 { margin: 10px 0; font-size: 1.3rem; }
+    h1 { margin: 10px 0; font-size: 1.4rem; }
     
-    .status-bar { display: flex; justify-content: space-between; max-width: 600px; margin: 0 auto 10px; font-weight: bold; font-size: 1.1rem; }
+    .status-bar { display: flex; justify-content: space-between; max-width: 600px; margin: 0 auto 10px; font-weight: bold; font-size: 1.2rem; }
     .score { color: #2ecc71; }
     .q-num { color: #f1c40f; }
 
     .btn-container { margin: 10px 0 15px; }
     button.start-btn {
-      padding: 12px 30px;
-      font-size: 1.2rem;
+      padding: 14px 35px;
+      font-size: 1.3rem;
       background: #2ecc71;
       color: white;
       border: none;
@@ -25,14 +25,14 @@
       box-shadow: 0 4px 10px rgba(0,0,0,0.3);
     }
 
-    /* 落ちてくるエリア */
+    /* 落下エリア（縦長で見やすいサイズ） */
     #game-container {
       position: relative;
       width: 100%;
       max-width: 600px;
-      height: 350px;
+      height: 380px;
       background: #1a252f;
-      margin: 0 auto 15px;
+      margin: 0 auto 20px;
       border-radius: 12px;
       overflow: hidden;
       border: 3px solid #34495e;
@@ -43,7 +43,7 @@
       padding: 12px;
       background: #34495e;
       font-weight: bold;
-      font-size: 1.05rem;
+      font-size: 1.1rem;
       border-bottom: 2px solid #2c3e50;
     }
 
@@ -51,39 +51,40 @@
       position: absolute;
       background: #e67e22;
       color: white;
-      padding: 10px 18px;
-      border-radius: 20px;
+      padding: 12px 20px;
+      border-radius: 25px;
       font-weight: bold;
       cursor: pointer;
       box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-      font-size: 1.05rem;
+      font-size: 1.1rem;
       z-index: 5;
     }
 
-    /* 5つのボックスで関係代名詞の構造を分解 */
-    .target-zones { display: flex; gap: 5px; max-width: 600px; margin: 0 auto; }
+    /* おなじみの基本4ボックスUI */
+    .target-zones { display: flex; gap: 8px; max-width: 600px; margin: 0 auto; }
     .zone {
       flex: 1;
       background: #34495e;
-      padding: 10px 4px;
-      border-radius: 8px;
-      font-size: 0.75rem;
-      min-height: 110px;
+      padding: 12px 6px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      min-height: 120px;
       border: 2px dashed #7f8c8d;
       box-sizing: border-box;
       cursor: pointer;
+      transition: background 0.2s;
     }
     .zone:hover { background: #3e5871; }
-    .zone-title { font-weight: bold; color: #f1c40f; margin-bottom: 6px; line-height: 1.2; font-size: 0.8rem; }
-    .zone-content { display: flex; flex-direction: column; gap: 4px; }
+    .zone-title { font-weight: bold; color: #f1c40f; margin-bottom: 8px; line-height: 1.3; font-size: 0.9rem; }
+    .zone-content { display: flex; flex-direction: column; gap: 6px; }
     
     .placed-item {
       background: #27ae60;
-      padding: 6px 4px;
-      border-radius: 4px;
-      font-size: 0.8rem;
+      padding: 8px;
+      border-radius: 6px;
+      font-size: 0.85rem;
       word-break: break-all;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
       font-weight: bold;
     }
   </style>
@@ -105,64 +106,63 @@
     <div class="jp-question" id="jpQuestion">「ゲームスタート！」を押してね！</div>
   </div>
 
-  <!-- 構造を理解しやすい5ボックス -->
+  <!-- 見やすい元の4ボックス設計 -->
   <div class="target-zones">
-    <div class="zone" onclick="dropToZone('先行詞')">
-      <div class="zone-title">① 先行詞<br>(だれ/なに)</div>
-      <div class="zone-content" id="zone-先行詞"></div>
+    <div class="zone" onclick="dropToZone('主語')">
+      <div class="zone-title">① だれが<br>/何が</div>
+      <div class="zone-content" id="zone-主語"></div>
     </div>
-    <div class="zone" onclick="dropToZone('関係代名詞')">
-      <div class="zone-title">② 関係詞<br>(who/that等)</div>
-      <div class="zone-content" id="zone-関係代名詞"></div>
+    <div class="zone" onclick="dropToZone('修飾')">
+      <div class="zone-title">② どんな人/物か<br>(関係代名詞)</div>
+      <div class="zone-content" id="zone-修飾"></div>
     </div>
-    <div class="zone" onclick="dropToZone('修飾内容')">
-      <div class="zone-title">③ 説明する文<br>(S'+V'...)</div>
-      <div class="zone-content" id="zone-修飾内容"></div>
-    </div>
-    <div class="zone" onclick="dropToZone('述語動詞')">
-      <div class="zone-title">④ 本文の動詞<br>(する/です)</div>
-      <div class="zone-content" id="zone-述語動詞"></div>
+    <div class="zone" onclick="dropToZone('動詞')">
+      <div class="zone-title">③ する<br>/です</div>
+      <div class="zone-content" id="zone-動詞"></div>
     </div>
     <div class="zone" onclick="dropToZone('補語目的語')">
-      <div class="zone-title">⑤ その他<br>(だれ/なに/補語)</div>
+      <div class="zone-title">④ だれ<br>・なに</div>
       <div class="zone-content" id="zone-補語目的語"></div>
     </div>
   </div>
 
   <script>
+    // 単語・関係詞節ごとに分割して出題
     const questions = [
       {
         jp: "私たちが夏に行く海は美しいです。",
-        explain: "【解説】\n[ The sea ]（①先行詞）\n[ that ]（②関係代名詞）\n[ we go to in summer ]（③説明文）\n[ is ]（④本文の動詞）\n[ beautiful. ]（⑤補語）",
+        fullEn: "The sea that we go to in summer is beautiful.",
+        explain: "【解説】\n[The sea]（①先行詞）\n + [that we go to in summer]（②修飾節）\n + [is]（③動詞）\n + [beautiful.]（④補語）",
         words: [
-          { word: "The sea", cat: "先行詞" },
-          { word: "that", cat: "関係代名詞" },
-          { word: "we", cat: "修飾内容" },
-          { word: "go to in summer", cat: "修飾内容" },
-          { word: "is", cat: "述語動詞" },
+          { word: "The sea", cat: "主語" },
+          { word: "that", cat: "修飾" },
+          { word: "we go to in summer", cat: "修飾" },
+          { word: "is", cat: "動詞" },
           { word: "beautiful.", cat: "補語目的語" }
         ]
       },
       {
         jp: "公園で走っている男の子は私の友達です。",
-        explain: "【解説】\n[ The boy ]（①先行詞）\n[ who ]（②関係代名詞・主格）\n[ is running in the park ]（③説明文）\n[ is ]（④本文の動詞）\n[ my friend. ]（⑤補語）",
+        fullEn: "The boy who is running in the park is my friend.",
+        explain: "【解説】\n[The boy]（①先行詞）\n + [who is running in the park]（②修飾節）\n + [is]（③動詞）\n + [my friend.]（④補語）",
         words: [
-          { word: "The boy", cat: "先行詞" },
-          { word: "who", cat: "関係代名詞" },
-          { word: "is running in the park", cat: "修飾内容" },
-          { word: "is", cat: "述語動詞" },
+          { word: "The boy", cat: "主語" },
+          { word: "who", cat: "修飾" },
+          { word: "is running in the park", cat: "修飾" },
+          { word: "is", cat: "動詞" },
           { word: "my friend.", cat: "補語目的語" }
         ]
       },
       {
         jp: "父親が有名な歌手である友達がいます。",
-        explain: "【解説】\n[ I ] [ have ] [ a friend ]（①〜⑤で構造化）\n[ whose ]（②所有格関係代名詞）\n[ father is a famous singer. ]（③説明文）",
+        fullEn: "I have a friend whose father is a famous singer.",
+        explain: "【解説】\n[I]（①主語）\n + [have]（③動詞）\n + [a friend]（④目的語）\n + [whose father is a famous singer.]（②修飾）",
         words: [
-          { word: "I", cat: "先行詞" },
-          { word: "have", cat: "述語動詞" },
+          { word: "I", cat: "主語" },
+          { word: "have", cat: "動詞" },
           { word: "a friend", cat: "補語目的語" },
-          { word: "whose", cat: "関係代名詞" },
-          { word: "father is a famous singer.", cat: "修飾内容" }
+          { word: "whose", cat: "修飾" },
+          { word: "father is a famous singer.", cat: "修飾" }
         ]
       }
     ];
@@ -171,6 +171,17 @@
     let score = 0;
     let wordQueue = [];
     let selectedBlock = null;
+
+    // 英語読み上げ機能
+    function speak(text) {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const uttr = new SpeechSynthesisUtterance(text);
+        uttr.lang = 'en-US';
+        uttr.rate = 0.9;
+        window.speechSynthesis.speak(uttr);
+      }
+    }
 
     function startGame() {
       currentQIdx = 0;
@@ -200,75 +211,11 @@
       el.innerText = item.word;
       el.dataset.cat = item.cat;
 
-      const startX = Math.random() * (container.clientWidth - 160);
+      const startX = Math.random() * (container.clientWidth - 180);
       el.style.left = Math.max(10, startX) + 'px';
       el.style.top = '50px';
 
       el.onclick = function() {
         if (selectedBlock) selectedBlock.style.outline = 'none';
         selectedBlock = el;
-        el.style.outline = '4px solid #f1c40f';
-      };
-
-      container.appendChild(el);
-
-      let pos = 50;
-      const fallInterval = setInterval(() => {
-        if (!el.parentElement) {
-          clearInterval(fallInterval);
-          return;
-        }
-        pos += 1.2;
-        el.style.top = pos + 'px';
-
-        if (pos > container.clientHeight - 45) {
-          pos = 50;
-        }
-      }, 50);
-    }
-
-    function dropToZone(zoneName) {
-      if (!selectedBlock) return;
-
-      if (selectedBlock.dataset.cat === zoneName) {
-        score += 10;
-        document.getElementById('score').innerText = score;
-
-        const item = document.createElement('div');
-        item.className = 'placed-item';
-        item.innerText = selectedBlock.innerText;
-
-        document.getElementById('zone-' + zoneName).appendChild(item);
-
-        selectedBlock.remove();
-        selectedBlock = null;
-
-        if (wordQueue.length > 0) {
-          setTimeout(spawnNextWord, 400);
-        } else {
-          const q = questions[currentQIdx];
-          setTimeout(() => {
-            alert(`🎉 正解です！\n\n${q.explain}`);
-            currentQIdx++;
-            if (currentQIdx < questions.length) {
-              loadQuestion();
-            } else {
-              alert(`全問クリア！お疲れ様でした！🎉\n最終スコア: ${score}点`);
-              document.getElementById('startBtn').style.display = 'inline-block';
-              document.getElementById('startBtn').innerText = 'もう一度やる';
-            }
-          }, 300);
-        }
-      } else {
-        alert("そのボックスではありません！役割（先行詞 / 関係詞 / 説明する文 など）を確かめよう。");
-      }
-    }
-
-    function clearZones() {
-      ['先行詞', '関係代名詞', '修飾内容', '述語動詞', '補語目的語'].forEach(id => {
-        document.getElementById('zone-' + id).innerHTML = '';
-      });
-    }
-  </script>
-</body>
-</html>
+        el.style.outline = '4px solid #f1c40f
