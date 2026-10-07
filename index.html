@@ -10,8 +10,6 @@
     .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
     .jp-text { font-size: 1.2rem; font-weight: bold; margin-bottom: 15px; color: #2c3e50; }
     .drop-zone-container { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; padding: 15px; background: #eef2f5; border-radius: 8px; min-height: 60px; }
-    .slot { border: 2px dashed #bdc3c7; background: #fff; padding: 10px; border-radius: 6px; min-width: 80px; text-align: center; }
-    .slot-label { font-size: 0.75rem; color: #7f8c8d; display: block; margin-bottom: 4px; }
     .block-pool { display: flex; flex-wrap: wrap; gap: 10px; }
     .block { background: #3498db; color: white; padding: 10px 15px; border-radius: 6px; cursor: pointer; user-select: none; font-weight: bold; }
     .block.rel { background: #e67e22; }
@@ -27,7 +25,49 @@
 
   <div class="card">
     <div class="jp-text">問題: 「公園で走っている男の子は私の友達です。」</div>
+    <p>下の単語ブロックをタップして、正しい順番で並べてみよう！</p>
     
-    <p>下の単語ブロックをタップして「意味順」の並び順に入れてみよう！</p>
-    
-    <div class="drop-zone-container" id="dropZone
+    <div class="drop-zone-container" id="dropZone"></div>
+
+    <div class="block-pool" id="blockPool">
+      <div class="block" onclick="moveBlock(this)">The boy</div>
+      <div class="block rel" onclick="moveBlock(this)">who</div>
+      <div class="block" onclick="moveBlock(this)">is running</div>
+      <div class="block" onclick="moveBlock(this)">in the park</div>
+      <div class="block" onclick="moveBlock(this)">is</div>
+      <div class="block" onclick="moveBlock(this)">my friend.</div>
+    </div>
+
+    <button onclick="checkAnswer()">答えあわせ</button>
+    <div id="result"></div>
+  </div>
+
+  <script>
+    function moveBlock(el) {
+      const dropZone = document.getElementById('dropZone');
+      const blockPool = document.getElementById('blockPool');
+      if (el.parentElement === blockPool) {
+        dropZone.appendChild(el);
+      } else {
+        blockPool.appendChild(el);
+      }
+    }
+
+    function checkAnswer() {
+      const dropZone = document.getElementById('dropZone');
+      const userOrder = Array.from(dropZone.children).map(child => child.innerText.trim()).join(' ');
+      const correctAnswer = "The boy who is running in the park is my friend.";
+      const resultDiv = document.getElementById('result');
+
+      if (userOrder === correctAnswer) {
+        resultDiv.style.color = "#2ecc71";
+        resultDiv.innerText = "🎉 正解です！完璧！";
+      } else {
+        resultDiv.style.color = "#e74c3c";
+        resultDiv.innerText = "❌ おしい！もう一度順番を確かめてみよう。";
+      }
+    }
+  </script>
+
+</body>
+</html>
