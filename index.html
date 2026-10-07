@@ -12,8 +12,8 @@
     .timer { color: #e74c3c; }
     .score { color: #2ecc71; }
 
-    /* スタートボタン位置調整 */
-    .btn-container { margin: 10px 0 20px; }
+    /* スタートボタンエリア */
+    .btn-container { margin: 15px 0; }
     button.start-btn {
       padding: 15px 40px;
       font-size: 1.3rem;
@@ -24,17 +24,15 @@
       cursor: pointer;
       font-weight: bold;
       box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-      position: relative;
-      z-index: 10;
     }
     button.start-btn:active { transform: scale(0.95); }
 
-    /* ゲームエリア */
+    /* ゲームエリア（重なりを解消） */
     #game-container {
       position: relative;
       width: 100%;
       max-width: 500px;
-      height: 280px;
+      height: 250px;
       background: #1a252f;
       margin: 0 auto 15px;
       border-radius: 10px;
@@ -60,6 +58,7 @@
       cursor: pointer;
       box-shadow: 0 4px 10px rgba(0,0,0,0.3);
       font-size: 1rem;
+      z-index: 5;
     }
 
     /* 意味順ボックス */
@@ -89,12 +88,13 @@
     <div class="score">⭐ スコア: <span id="score">0</span></div>
   </div>
 
+  <!-- ボタンを最上部に移動して押しやすく配置 -->
   <div class="btn-container">
     <button class="start-btn" id="startBtn" onclick="startGame()">ゲームスタート！</button>
   </div>
 
   <div id="game-container">
-    <div class="jp-question" id="jpQuestion">上の「ゲームスタート！」を押してね！</div>
+    <div class="jp-question" id="jpQuestion">「ゲームスタート！」を押してね！</div>
   </div>
 
   <!-- 意味順ボックス -->
