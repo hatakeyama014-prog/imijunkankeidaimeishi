@@ -1,425 +1,274 @@
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>意味順ドロップ - 関係代名詞編</title>
+  <title>意味順ドロップ（関係代名詞編）</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
-    body {
-      background-color: #0b0f19;
-      color: #e2e8f0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      overflow: hidden;
-    }
+    body { font-family: sans-serif; background: #2c3e50; color: #fff; text-align: center; margin: 0; padding: 15px; user-select: none; }
+    h1 { margin: 10px 0; font-size: 1.3rem; }
+    
+    .status-bar { display: flex; justify-content: space-between; max-width: 600px; margin: 0 auto 10px; font-weight: bold; font-size: 1.1rem; }
+    .score { color: #2ecc71; }
+    .q-num { color: #f1c40f; }
 
-    /* Main Container */
-    .game-container {
-      width: 100%;
-      max-width: 500px;
-      height: 95vh;
-      max-height: 850px;
-      background: #111827;
-      border-radius: 24px;
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
-      position: relative;
-      border: 1px solid rgba(255, 255, 255, 0.05);
-    }
-
-    /* Header Component */
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 4px 8px;
-    }
-    .header-left { display: flex; align-items: center; gap: 8px; }
-    .home-btn {
-      width: 36px;
-      height: 36px;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 10px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      cursor: pointer;
-      font-size: 16px;
-      color: #9ca3af;
-    }
-    .badge {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 20px;
-      padding: 6px 12px;
-      font-size: 13px;
-      font-weight: 700;
-      color: #9ca3af;
-    }
-    .badge span { color: #f3f4f6; margin-left: 4px; }
-    .hearts { color: #ef4444; font-size: 20px; letter-spacing: 2px; }
-
-    /* Target Sentence Box */
-    .target-card {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 16px;
-      padding: 12px;
-      text-align: center;
-    }
-    .target-title { font-size: 12px; color: #9ca3af; margin-bottom: 4px; }
-    .target-text { font-size: 18px; font-weight: 700; color: #ffffff; }
-
-    /* Main Play Area (Drop Stage) */
-    .stage {
-      flex: 1;
-      background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      border-radius: 20px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    /* Falling Card Design */
-    .card {
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
-      top: 0;
-      background: #ffffff;
-      color: #111827;
-      font-size: 20px;
-      font-weight: 800;
-      padding: 12px 28px;
-      border-radius: 16px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
-      white-space: nowrap;
-      text-align: center;
-      z-index: 10;
-    }
-
-    /* Bottom Boxes (Slots) */
-    .slots {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-    }
-    .slot {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 16px;
-      padding: 10px 8px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-height: 120px;
-      cursor: pointer;
-      transition: background 0.15s, transform 0.1s;
-    }
-    .slot:active {
-      transform: scale(0.97);
-      background: rgba(255, 255, 255, 0.08);
-    }
-    .slot-num {
-      align-self: flex-start;
-      font-size: 11px;
-      color: #6b7280;
-      font-weight: 600;
-      margin-bottom: 4px;
-    }
-    .pill {
-      font-size: 12px;
-      font-weight: 700;
-      padding: 4px 14px;
-      border-radius: 20px;
+    .btn-container { margin: 10px 0 15px; }
+    button.start-btn {
+      padding: 12px 30px;
+      font-size: 1.2rem;
+      background: #2ecc71;
       color: white;
-      margin-bottom: 8px;
-    }
-    .pill-1 { background-color: #ec4899; } /* だれが */
-    .pill-2 { background-color: #0ea5e9; } /* する・です */
-    .pill-4 { background-color: #a855f7; } /* なに */
-
-    .slot-content {
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      align-items: center;
-      font-size: 11px;
-      color: #4b5563;
-    }
-    .placed-word {
-      background: rgba(255, 255, 255, 0.1);
-      color: #38bdf8;
-      padding: 4px 8px;
-      border-radius: 8px;
-      font-weight: 700;
-      font-size: 12px;
-      text-align: center;
-      width: 100%;
-      word-break: break-word;
-    }
-
-    /* Overlay Screen */
-    .overlay {
-      position: absolute;
-      inset: 0;
-      background: rgba(11, 15, 25, 0.95);
-      border-radius: 24px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      gap: 16px;
-      z-index: 30;
-    }
-    .overlay h2 { font-size: 28px; color: #ffffff; font-weight: 800; }
-    .btn-start {
-      background: #3b82f6;
-      color: white;
-      padding: 14px 32px;
-      border-radius: 12px;
-      font-weight: 800;
       border: none;
+      border-radius: 30px;
       cursor: pointer;
-      font-size: 16px;
-      box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
+      font-weight: bold;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+
+    /* 落ちてくるエリア */
+    #game-container {
+      position: relative;
+      width: 100%;
+      max-width: 600px;
+      height: 350px;
+      background: #1a252f;
+      margin: 0 auto 15px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 3px solid #34495e;
+      box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
+    }
+
+    .jp-question {
+      padding: 12px;
+      background: #34495e;
+      font-weight: bold;
+      font-size: 1.05rem;
+      border-bottom: 2px solid #2c3e50;
+    }
+
+    .falling-block {
+      position: absolute;
+      background: #e67e22;
+      color: white;
+      padding: 10px 18px;
+      border-radius: 20px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+      font-size: 1.05rem;
+      z-index: 5;
+    }
+
+    /* 5つのボックスで関係代名詞の構造を分解 */
+    .target-zones { display: flex; gap: 5px; max-width: 600px; margin: 0 auto; }
+    .zone {
+      flex: 1;
+      background: #34495e;
+      padding: 10px 4px;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      min-height: 110px;
+      border: 2px dashed #7f8c8d;
+      box-sizing: border-box;
+      cursor: pointer;
+    }
+    .zone:hover { background: #3e5871; }
+    .zone-title { font-weight: bold; color: #f1c40f; margin-bottom: 6px; line-height: 1.2; font-size: 0.8rem; }
+    .zone-content { display: flex; flex-direction: column; gap: 4px; }
+    
+    .placed-item {
+      background: #27ae60;
+      padding: 6px 4px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      word-break: break-all;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
 
-<div class="game-container">
-  <!-- Top Bar -->
-  <div class="header">
-    <div class="header-left">
-      <div class="home-btn">⌂</div>
-      <div class="badge">LV <span id="level">1</span></div>
-      <div class="badge">SCORE <span id="score">0</span></div>
-    </div>
-    <div class="hearts" id="hearts">♥♥♥</div>
+  <h1>意味順ドロップ（関係代名詞）</h1>
+
+  <div class="status-bar">
+    <div class="q-num" id="qNum">第 1 問</div>
+    <div class="score">⭐ スコア: <span id="score">0</span></div>
   </div>
 
-  <!-- Target Sentence -->
-  <div class="target-card">
-    <div class="target-title">この文をつくろう</div>
-    <div class="target-text" id="jp-sentence">---</div>
+  <div class="btn-container">
+    <button class="start-btn" id="startBtn" onclick="startGame()">ゲームスタート！</button>
   </div>
 
-  <!-- Drop Stage -->
-  <div class="stage" id="stage">
-    <div class="card" id="card" style="display:none;">---</div>
+  <div id="game-container">
+    <div class="jp-question" id="jpQuestion">「ゲームスタート！」を押してね！</div>
   </div>
 
-  <!-- Slots -->
-  <div class="slots">
-    <div class="slot" onclick="handleInput(1)">
-      <span class="slot-num">1</span>
-      <span class="pill pill-1">だれが</span>
-      <div class="slot-content" id="slot-1">·····</div>
+  <!-- 構造を理解しやすい5ボックス -->
+  <div class="target-zones">
+    <div class="zone" onclick="dropToZone('先行詞')">
+      <div class="zone-title">① 先行詞<br>(だれ/なに)</div>
+      <div class="zone-content" id="zone-先行詞"></div>
     </div>
-
-    <div class="slot" onclick="handleInput(2)">
-      <span class="slot-num">2</span>
-      <span class="pill pill-2">する・です</span>
-      <div class="slot-content" id="slot-2">·····</div>
+    <div class="zone" onclick="dropToZone('関係代名詞')">
+      <div class="zone-title">② 関係詞<br>(who/that等)</div>
+      <div class="zone-content" id="zone-関係代名詞"></div>
     </div>
-
-    <div class="slot" onclick="handleInput(4)">
-      <span class="slot-num">4</span>
-      <span class="pill pill-4">なに</span>
-      <div class="slot-content" id="slot-4">·····</div>
+    <div class="zone" onclick="dropToZone('修飾内容')">
+      <div class="zone-title">③ 説明する文<br>(S'+V'...)</div>
+      <div class="zone-content" id="zone-修飾内容"></div>
+    </div>
+    <div class="zone" onclick="dropToZone('述語動詞')">
+      <div class="zone-title">④ 本文の動詞<br>(する/です)</div>
+      <div class="zone-content" id="zone-述語動詞"></div>
+    </div>
+    <div class="zone" onclick="dropToZone('補語目的語')">
+      <div class="zone-title">⑤ その他<br>(だれ/なに/補語)</div>
+      <div class="zone-content" id="zone-補語目的語"></div>
     </div>
   </div>
 
-  <!-- Overlay Modal -->
-  <div class="overlay" id="overlay">
-    <h2 id="overlay-title">意味順ドロップ</h2>
-    <p style="color: #9ca3af;">関係代名詞編</p>
-    <button class="btn-start" onclick="startGame()">スタート</button>
-  </div>
-</div>
-
-<script>
-  // 音声読み上げ
-  function speak(text, callback) {
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      const uttr = new SpeechSynthesisUtterance(text);
-      uttr.lang = 'en-US';
-      uttr.rate = 0.9;
-      if (callback) uttr.onend = callback;
-      window.speechSynthesis.speak(uttr);
-    } else if (callback) callback();
-  }
-
-  // 関係代名詞の問題
-  const questions = [
-    {
-      jp: "これが私たちが夏に行く海です。",
-      sequence: [
-        { text: "This", target: 1 },
-        { text: "is", target: 2 },
-        { text: "the sea that we go to in summer", target: 4 }
-      ]
-    },
-    {
-      jp: "私たちが夏に行く海は美しいです。",
-      sequence: [
-        { text: "The sea that we go to in summer", target: 1 },
-        { text: "is", target: 2 },
-        { text: "beautiful", target: 4 }
-      ]
-    },
-    {
-      jp: "あそこで走っている少年は健です。",
-      sequence: [
-        { text: "The boy who is running over there", target: 1 },
-        { text: "is", target: 2 },
-        { text: "Ken", target: 4 }
-      ]
-    }
-  ];
-
-  const distractors = ["He", "a book", "the ball", "We"];
-
-  let currentQIdx = 0;
-  let currentTargetIdx = 0;
-  let score = 0;
-  let lives = 3;
-  let dropTimer = null;
-  let posY = 0;
-  let currentCardData = null;
-
-  function startGame() {
-    currentQIdx = 0;
-    score = 0;
-    lives = 3;
-    document.getElementById("score").innerText = score;
-    document.getElementById("overlay").style.display = "none";
-    updateHearts();
-    initQuestion();
-  }
-
-  function initQuestion() {
-    if (currentQIdx >= questions.length) {
-      endGame("全ステージクリア！");
-      speak("Congratulations!");
-      return;
-    }
-
-    document.getElementById("level").innerText = currentQIdx + 1;
-    document.getElementById("jp-sentence").innerText = questions[currentQIdx].jp;
-    currentTargetIdx = 0;
-
-    [1, 2, 4].forEach(n => document.getElementById(`slot-${n}`).innerText = '·····');
-
-    spawnCard();
-  }
-
-  function spawnCard() {
-    clearInterval(dropTimer);
-    const q = questions[currentQIdx];
-
-    if (currentTargetIdx >= q.sequence.length) {
-      // 1文完成
-      score += 100;
-      document.getElementById("score").innerText = score;
-      const fullSentence = q.sequence.map(i => i.text).join(" ");
-      speak(fullSentence, () => {
-        currentQIdx++;
-        initQuestion();
-      });
-      return;
-    }
-
-    const isDistractor = Math.random() < 0.3;
-    if (isDistractor) {
-      const dummy = distractors[Math.floor(Math.random() * distractors.length)];
-      currentCardData = { text: dummy, target: null };
-    } else {
-      currentCardData = q.sequence[currentTargetIdx];
-    }
-
-    const card = document.getElementById("card");
-    card.innerText = currentCardData.text;
-    card.style.display = "block";
-    posY = 0;
-    card.style.top = posY + "px";
-
-    const stageHeight = document.getElementById("stage").clientHeight - 50;
-
-    dropTimer = setInterval(() => {
-      posY += 1.2;
-      card.style.top = posY + "px";
-
-      if (posY >= stageHeight) {
-        clearInterval(dropTimer);
-        if (currentCardData.target !== null) {
-          miss();
-        } else {
-          spawnCard();
-        }
+  <script>
+    const questions = [
+      {
+        jp: "私たちが夏に行く海は美しいです。",
+        explain: "【解説】\n[ The sea ]（①先行詞）\n[ that ]（②関係代名詞）\n[ we go to in summer ]（③説明文）\n[ is ]（④本文の動詞）\n[ beautiful. ]（⑤補語）",
+        words: [
+          { word: "The sea", cat: "先行詞" },
+          { word: "that", cat: "関係代名詞" },
+          { word: "we", cat: "修飾内容" },
+          { word: "go to in summer", cat: "修飾内容" },
+          { word: "is", cat: "述語動詞" },
+          { word: "beautiful.", cat: "補語目的語" }
+        ]
+      },
+      {
+        jp: "公園で走っている男の子は私の友達です。",
+        explain: "【解説】\n[ The boy ]（①先行詞）\n[ who ]（②関係代名詞・主格）\n[ is running in the park ]（③説明文）\n[ is ]（④本文の動詞）\n[ my friend. ]（⑤補語）",
+        words: [
+          { word: "The boy", cat: "先行詞" },
+          { word: "who", cat: "関係代名詞" },
+          { word: "is running in the park", cat: "修飾内容" },
+          { word: "is", cat: "述語動詞" },
+          { word: "my friend.", cat: "補語目的語" }
+        ]
+      },
+      {
+        jp: "父親が有名な歌手である友達がいます。",
+        explain: "【解説】\n[ I ] [ have ] [ a friend ]（①〜⑤で構造化）\n[ whose ]（②所有格関係代名詞）\n[ father is a famous singer. ]（③説明文）",
+        words: [
+          { word: "I", cat: "先行詞" },
+          { word: "have", cat: "述語動詞" },
+          { word: "a friend", cat: "補語目的語" },
+          { word: "whose", cat: "関係代名詞" },
+          { word: "father is a famous singer.", cat: "修飾内容" }
+        ]
       }
-    }, 20);
-  }
+    ];
 
-  function handleInput(selectedSlot) {
-    if (!currentCardData) return;
-    clearInterval(dropTimer);
+    let currentQIdx = 0;
+    let score = 0;
+    let wordQueue = [];
+    let selectedBlock = null;
 
-    if (currentCardData.target === selectedSlot) {
-      speak(currentCardData.text);
-      score += 20;
-      document.getElementById("score").innerText = score;
-
-      const slotElem = document.getElementById(`slot-${selectedSlot}`);
-      if (slotElem.innerText === '·····') slotElem.innerText = '';
-
-      const div = document.createElement("div");
-      div.className = "placed-word";
-      div.innerText = currentCardData.text;
-      slotElem.appendChild(div);
-
-      currentTargetIdx++;
-      spawnCard();
-    } else {
-      miss();
+    function startGame() {
+      currentQIdx = 0;
+      score = 0;
+      document.getElementById('score').innerText = score;
+      document.getElementById('startBtn').style.display = 'none';
+      loadQuestion();
     }
-  }
 
-  function miss() {
-    lives--;
-    updateHearts();
-    if (lives <= 0) {
-      endGame("ゲームオーバー");
-      speak("Game Over");
-    } else {
-      spawnCard();
+    function loadQuestion() {
+      clearZones();
+      const q = questions[currentQIdx];
+      document.getElementById('qNum').innerText = `第 ${currentQIdx + 1} 問 / 全 ${questions.length} 問`;
+      document.getElementById('jpQuestion').innerText = "問題: 「" + q.jp + "」";
+
+      wordQueue = [...q.words].sort(() => Math.random() - 0.5);
+      spawnNextWord();
     }
-  }
 
-  function updateHearts() {
-    let h = "";
-    for (let i = 0; i < lives; i++) h += "♥";
-    document.getElementById("hearts").innerText = h || "―";
-  }
+    function spawnNextWord() {
+      if (wordQueue.length === 0) return;
 
-  function endGame(title) {
-    clearInterval(dropTimer);
-    document.getElementById("card").style.display = "none";
-    document.getElementById("overlay-title").innerText = title;
-    document.getElementById("overlay").style.display = "flex";
-  }
-</script>
+      const item = wordQueue.shift();
+      const container = document.getElementById('game-container');
+      const el = document.createElement('div');
+      el.className = 'falling-block';
+      el.innerText = item.word;
+      el.dataset.cat = item.cat;
 
+      const startX = Math.random() * (container.clientWidth - 160);
+      el.style.left = Math.max(10, startX) + 'px';
+      el.style.top = '50px';
+
+      el.onclick = function() {
+        if (selectedBlock) selectedBlock.style.outline = 'none';
+        selectedBlock = el;
+        el.style.outline = '4px solid #f1c40f';
+      };
+
+      container.appendChild(el);
+
+      let pos = 50;
+      const fallInterval = setInterval(() => {
+        if (!el.parentElement) {
+          clearInterval(fallInterval);
+          return;
+        }
+        pos += 1.2;
+        el.style.top = pos + 'px';
+
+        if (pos > container.clientHeight - 45) {
+          pos = 50;
+        }
+      }, 50);
+    }
+
+    function dropToZone(zoneName) {
+      if (!selectedBlock) return;
+
+      if (selectedBlock.dataset.cat === zoneName) {
+        score += 10;
+        document.getElementById('score').innerText = score;
+
+        const item = document.createElement('div');
+        item.className = 'placed-item';
+        item.innerText = selectedBlock.innerText;
+
+        document.getElementById('zone-' + zoneName).appendChild(item);
+
+        selectedBlock.remove();
+        selectedBlock = null;
+
+        if (wordQueue.length > 0) {
+          setTimeout(spawnNextWord, 400);
+        } else {
+          const q = questions[currentQIdx];
+          setTimeout(() => {
+            alert(`🎉 正解です！\n\n${q.explain}`);
+            currentQIdx++;
+            if (currentQIdx < questions.length) {
+              loadQuestion();
+            } else {
+              alert(`全問クリア！お疲れ様でした！🎉\n最終スコア: ${score}点`);
+              document.getElementById('startBtn').style.display = 'inline-block';
+              document.getElementById('startBtn').innerText = 'もう一度やる';
+            }
+          }, 300);
+        }
+      } else {
+        alert("そのボックスではありません！役割（先行詞 / 関係詞 / 説明する文 など）を確かめよう。");
+      }
+    }
+
+    function clearZones() {
+      ['先行詞', '関係代名詞', '修飾内容', '述語動詞', '補語目的語'].forEach(id => {
+        document.getElementById('zone-' + id).innerHTML = '';
+      });
+    }
+  </script>
 </body>
 </html>
