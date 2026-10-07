@@ -3,269 +3,417 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>意味順ドロップ（関係代名詞編）</title>
+  <title>意味順ドロップ - 関係代名詞編 (音声読み上げ付き)</title>
   <style>
-    body { font-family: sans-serif; background: #2c3e50; color: #fff; text-align: center; margin: 0; padding: 15px; user-select: none; }
-    h1 { margin: 10px 0; font-size: 1.3rem; }
-    
-    .status-bar { display: flex; justify-content: space-between; max-width: 500px; margin: 0 auto 10px; font-weight: bold; font-size: 1.1rem; }
-    .score { color: #2ecc71; }
-    .q-num { color: #f1c40f; }
-
-    .btn-container { margin: 10px 0; }
-    button.start-btn {
-      padding: 12px 30px;
-      font-size: 1.2rem;
-      background: #2ecc71;
-      color: white;
-      border: none;
-      border-radius: 30px;
-      cursor: pointer;
-      font-weight: bold;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+    body {
+      background-color: #0d1117;
+      color: #f0f6fc;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
     }
 
-    #game-container {
-      position: relative;
+    .game-container {
       width: 100%;
-      max-width: 500px;
-      height: 200px;
-      background: #1a252f;
-      margin: 0 auto 15px;
-      border-radius: 10px;
-      overflow: hidden;
-      border: 2px solid #34495e;
-    }
-
-    .jp-question {
-      padding: 10px;
-      background: #34495e;
-      font-weight: bold;
-      font-size: 0.95rem;
-    }
-
-    .falling-block {
-      position: absolute;
-      background: #e67e22;
-      color: white;
-      padding: 10px 16px;
+      max-width: 460px;
+      height: 92vh;
+      max-height: 780px;
+      background: #161b22;
       border-radius: 20px;
-      font-weight: bold;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid #30363d;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 4px 8px;
+    }
+    .home-icon {
+      width: 32px;
+      height: 32px;
+      background: #21262d;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
       cursor: pointer;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-      font-size: 1rem;
+      font-size: 14px;
+    }
+    .status-group { display: flex; gap: 12px; font-weight: bold; font-size: 13px; color: #8b949e; }
+    .status-group span { color: #58a6ff; font-size: 16px; margin-left: 4px; }
+    .hearts { color: #ff7b72; font-size: 18px; letter-spacing: 2px; }
+
+    .target-box {
+      text-align: center;
+      margin-top: 10px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid #30363d;
+      padding: 10px;
+      border-radius: 12px;
+    }
+    .target-label { font-size: 11px; color: #8b949e; margin-bottom: 2px; }
+    .target-text { font-size: 17px; font-weight: bold; color: #f0f6fc; }
+
+    .drop-stage {
+      flex: 1;
+      position: relative;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 14px;
+      margin: 12px 0;
+      overflow: hidden;
+      border: 1px dashed #21262d;
+    }
+
+    .falling-card {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      top: 0;
+      background: #f0f6fc;
+      color: #0d1117;
+      font-size: 18px;
+      font-weight: 800;
+      padding: 10px 20px;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(255,255,255,0.15);
+      white-space: nowrap;
+      text-align: center;
       z-index: 5;
     }
 
-    .target-zones { display: flex; gap: 6px; max-width: 500px; margin: 0 auto; }
-    .zone {
-      flex: 1;
-      background: #34495e;
-      padding: 8px 4px;
-      border-radius: 8px;
-      font-size: 0.75rem;
-      min-height: 90px;
-      border: 2px dashed #7f8c8d;
-      box-sizing: border-box;
-      cursor: pointer;
+    .slots-container {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
     }
-    .zone-title { font-weight: bold; color: #f1c40f; margin-bottom: 5px; line-height: 1.2; }
-    .zone-content { display: flex; flex-direction: column; gap: 4px; }
-    
+    .slot-box {
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 12px;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 110px;
+      cursor: pointer;
+      transition: transform 0.1s, background 0.15s;
+    }
+    .slot-box:active { transform: scale(0.96); background: #161b22; }
+
+    .slot-header {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-bottom: 8px;
+    }
+    .slot-num { font-size: 11px; color: #8b949e; }
+    .slot-badge {
+      font-size: 12px;
+      font-weight: bold;
+      padding: 2px 10px;
+      border-radius: 12px;
+      color: white;
+    }
+    .bg-1 { background-color: #f78166; }
+    .bg-2 { background-color: #2ea043; }
+    .bg-4 { background-color: #d29922; }
+
+    .slot-content {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      align-items: center;
+      font-size: 11px;
+      color: #484f58;
+    }
     .placed-item {
-      background: #27ae60;
-      padding: 6px;
-      border-radius: 4px;
-      font-size: 0.75rem;
-      word-break: break-all;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      background: #21262d;
+      color: #58a6ff;
+      padding: 3px 6px;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 12px;
+      text-align: center;
+      width: 100%;
+      word-break: break-word;
+    }
+
+    .overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(13, 17, 23, 0.95);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+      z-index: 20;
+    }
+    .overlay h2 { font-size: 26px; color: #58a6ff; }
+    .btn-main {
+      background: #238636;
+      color: white;
+      padding: 12px 28px;
+      border-radius: 10px;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
     }
   </style>
 </head>
 <body>
 
-  <h1>意味順ドロップ（関係代名詞）</h1>
-
-  <div class="status-bar">
-    <div class="q-num" id="qNum">第 1 問</div>
-    <div class="score">⭐ スコア: <span id="score">0</span></div>
+<div class="game-container">
+  <div class="header">
+    <div class="home-icon">⌂</div>
+    <div class="status-group">
+      <div>LV <span id="level">1</span></div>
+      <div>SCORE <span id="score">0</span></div>
+    </div>
+    <div class="hearts" id="hearts">♥♥♥</div>
   </div>
 
-  <div class="btn-container">
-    <button class="start-btn" id="startBtn" onclick="startGame()">ゲームスタート！</button>
+  <div class="target-box">
+    <div class="target-label">この文をつくろう (音声機能ON)</div>
+    <div class="target-text" id="jp-sentence">---</div>
   </div>
 
-  <div id="game-container">
-    <div class="jp-question" id="jpQuestion">「ゲームスタート！」を押してね！</div>
+  <div class="drop-stage" id="stage">
+    <div class="falling-card" id="card" style="display:none;">---</div>
   </div>
 
-  <div class="target-zones">
-    <div class="zone" onclick="dropToZone('主語')">
-      <div class="zone-title">① だれが<br>/何が</div>
-      <div class="zone-content" id="zone-主語"></div>
+  <div class="slots-container">
+    <div class="slot-box" onclick="handleInput(1)">
+      <div class="slot-header">
+        <span class="slot-num">1</span>
+        <span class="slot-badge bg-1">だれが</span>
+      </div>
+      <div class="slot-content" id="slot-1">·····</div>
     </div>
-    <div class="zone" onclick="dropToZone('修飾')">
-      <div class="zone-title">② どんな人/物か</div>
-      <div class="zone-content" id="zone-修飾"></div>
+
+    <div class="slot-box" onclick="handleInput(2)">
+      <div class="slot-header">
+        <span class="slot-num">2</span>
+        <span class="slot-badge bg-2">する・です</span>
+      </div>
+      <div class="slot-content" id="slot-2">·····</div>
     </div>
-    <div class="zone" onclick="dropToZone('動詞')">
-      <div class="zone-title">③ する<br>/です</div>
-      <div class="zone-content" id="zone-動詞"></div>
-    </div>
-    <div class="zone" onclick="dropToZone('補語目的語')">
-      <div class="zone-title">④ だれ<br>・なに</div>
-      <div class="zone-content" id="zone-補語目的語"></div>
+
+    <div class="slot-box" onclick="handleInput(4)">
+      <div class="slot-header">
+        <span class="slot-num">4</span>
+        <span class="slot-badge bg-4">なに</span>
+      </div>
+      <div class="slot-content" id="slot-4">·····</div>
     </div>
   </div>
 
-  <script>
-    // プリント・解説用の基本問題リスト
-    const questions = [
-      {
-        jp: "公園で走っている男の子は私の友達です。",
-        explain: "【解説】先行詞が人で主格のため「who」を使います。\n[The boy] (who is running in the park) [is] [my friend].",
-        words: [
-          { word: "The boy", cat: "主語" },
-          { word: "who is running in the park", cat: "修飾" },
-          { word: "is", cat: "動詞" },
-          { word: "my friend.", cat: "補語目的語" }
-        ]
-      },
-      {
-        jp: "私が昨日会った先生はとても親切です。",
-        explain: "【解説】先行詞が人で目的格のため「whom (who/that)」を使います。\n[The teacher] (whom I met yesterday) [is] [very kind].",
-        words: [
-          { word: "The teacher", cat: "主語" },
-          { word: "whom I met yesterday", cat: "修飾" },
-          { word: "is", cat: "動詞" },
-          { word: "very kind.", cat: "補語目的語" }
-        ]
-      },
-      {
-        jp: "机の上にある本は私のものです。",
-        explain: "【解説】先行詞が物のため「which (that)」を使います。\n[The book] (which is on the desk) [is] [mine].",
-        words: [
-          { word: "The book", cat: "主語" },
-          { word: "which is on the desk", cat: "修飾" },
-          { word: "is", cat: "動詞" },
-          { word: "mine.", cat: "補語目的語" }
-        ]
-      },
-      {
-        jp: "父親が有名な歌手である友達がいます。",
-        explain: "【解説】「〜の父親」という所有の関係を表すため「whose」を使います。\n[I] [have] [a friend] (whose father is a famous singer).",
-        words: [
-          { word: "I", cat: "主語" },
-          { word: "have", cat: "動詞" },
-          { word: "a friend", cat: "補語目的語" },
-          { word: "whose father is a famous singer", cat: "修飾" }
-        ]
+  <div class="overlay" id="overlay">
+    <h2 id="overlay-title">意味順ドロップ</h2>
+    <p style="color:#8b949e;">関係代名詞編 (読み上げ付)</p>
+    <button class="btn-main" onclick="startGame()">スタート</button>
+  </div>
+</div>
+
+<script>
+  // 音声読み上げ用関数
+  function speakText(text, onEndCallback = null) {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel(); // 前の発音を停止
+      const uttr = new SpeechSynthesisUtterance(text);
+      uttr.lang = 'en-US'; // 英語発音に設定
+      uttr.rate = 0.9;     // 少しゆっくり聞きやすく
+      if (onEndCallback) {
+        uttr.onend = onEndCallback;
       }
-    ];
+      window.speechSynthesis.speak(uttr);
+    } else if (onEndCallback) {
+      onEndCallback();
+    }
+  }
 
-    let currentQIdx = 0;
-    let score = 0;
-    let wordQueue = [];
-    let selectedBlock = null;
+  const questions = [
+    {
+      jp: "これが私たちが夏に行く海です。",
+      sequence: [
+        { text: "This", target: 1 },
+        { text: "is", target: 2 },
+        { text: "the sea that we go to in summer", target: 4 }
+      ]
+    },
+    {
+      jp: "私たちが夏に行く海は美しいです。",
+      sequence: [
+        { text: "The sea that we go to in summer", target: 1 },
+        { text: "is", target: 2 },
+        { text: "beautiful", target: 4 }
+      ]
+    },
+    {
+      jp: "あそこで走っている少年は健です。",
+      sequence: [
+        { text: "The boy who is running over there", target: 1 },
+        { text: "is", target: 2 },
+        { text: "Ken", target: 4 }
+      ]
+    }
+  ];
 
-    function startGame() {
-      currentQIdx = 0;
-      score = 0;
-      document.getElementById('score').innerText = score;
-      document.getElementById('startBtn').style.display = 'none';
-      loadQuestion();
+  const distractors = ["He", "a book", "plays", "they"];
+
+  let currentQIdx = 0;
+  let currentTargetIdx = 0;
+  let score = 0;
+  let lives = 3;
+  let dropInterval = null;
+  let posY = 0;
+  let currentCardData = null;
+  const dropSpeed = 1.2;
+
+  function startGame() {
+    currentQIdx = 0;
+    score = 0;
+    lives = 3;
+    document.getElementById("score").innerText = score;
+    document.getElementById("overlay").style.display = "none";
+    updateHearts();
+    initQuestion();
+  }
+
+  function initQuestion() {
+    if (currentQIdx >= questions.length) {
+      endGame("全ステージクリア！");
+      speakText("Congratulations! All stages cleared.");
+      return;
     }
 
-    function loadQuestion() {
-      clearZones();
-      const q = questions[currentQIdx];
-      document.getElementById('qNum').innerText = `第 ${currentQIdx + 1} 問 / 全 ${questions.length} 問`;
-      document.getElementById('jpQuestion').innerText = "問題: 「" + q.jp + "」";
+    document.getElementById("level").innerText = currentQIdx + 1;
+    document.getElementById("jp-sentence").innerText = questions[currentQIdx].jp;
+    currentTargetIdx = 0;
 
-      wordQueue = [...q.words].sort(() => Math.random() - 0.5);
-      spawnNextWord();
-    }
+    [1, 2, 4].forEach(num => {
+      document.getElementById(`slot-${num}`).innerHTML = '·····';
+    });
 
-    function spawnNextWord() {
-      if (wordQueue.length === 0) return;
+    spawnNextCard();
+  }
 
-      const item = wordQueue.shift();
-      const container = document.getElementById('game-container');
-      const el = document.createElement('div');
-      el.className = 'falling-block';
-      el.innerText = item.word;
-      el.dataset.cat = item.cat;
+  function spawnNextCard() {
+    clearInterval(dropInterval);
+    const q = questions[currentQIdx];
 
-      const startX = Math.random() * (container.clientWidth - 150);
-      el.style.left = Math.max(10, startX) + 'px';
-      el.style.top = '40px';
-
-      el.onclick = function() {
-        if (selectedBlock) selectedBlock.style.outline = 'none';
-        selectedBlock = el;
-        el.style.outline = '3px solid #f1c40f';
-      };
-
-      container.appendChild(el);
-
-      let pos = 40;
-      const fallInterval = setInterval(() => {
-        if (!el.parentElement) {
-          clearInterval(fallInterval);
-          return;
-        }
-        pos += 1.2;
-        el.style.top = pos + 'px';
-
-        if (pos > container.clientHeight - 40) {
-          pos = 40;
-        }
-      }, 50);
-    }
-
-    function dropToZone(zoneName) {
-      if (!selectedBlock) return;
-
-      if (selectedBlock.dataset.cat === zoneName) {
-        score += 10;
-        document.getElementById('score').innerText = score;
-
-        const item = document.createElement('div');
-        item.className = 'placed-item';
-        item.innerText = selectedBlock.innerText;
-
-        document.getElementById('zone-' + zoneName).appendChild(item);
-
-        selectedBlock.remove();
-        selectedBlock = null;
-
-        if (wordQueue.length > 0) {
-          setTimeout(spawnNextWord, 400);
-        } else {
-          // 1問完成したら解説を表示
-          const q = questions[currentQIdx];
-          setTimeout(() => {
-            alert(`🎉 正解です！\n\n${q.explain}`);
-            currentQIdx++;
-            if (currentQIdx < questions.length) {
-              loadQuestion();
-            } else {
-              alert(`全問クリア！お疲れ様でした！🎉\n最終スコア: ${score}点`);
-              document.getElementById('startBtn').style.display = 'inline-block';
-              document.getElementById('startBtn').innerText = 'もう一度やる';
-            }
-          }, 300);
-        }
-      } else {
-        alert("そのボックスではありません！意味順を確かめよう。");
-      }
-    }
-
-    function clearZones() {
-      ['主語', '修飾', '動詞', '補語目的語'].forEach(id => {
-        document.getElementById('zone-' + id).innerHTML = '';
+    if (currentTargetIdx >= q.sequence.length) {
+      // 1文完成！全文を読み上げてから次へ
+      score += 100;
+      document.getElementById("score").innerText = score;
+      
+      const fullSentence = q.sequence.map(item => item.text).join(" ");
+      speakText(fullSentence, () => {
+        currentQIdx++;
+        initQuestion();
       });
+      return;
     }
-  </script>
+
+    const isDistractor = Math.random() < 0.3 && distractors.length > 0;
+
+    if (isDistractor) {
+      const randomDummy = distractors[Math.floor(Math.random() * distractors.length)];
+      currentCardData = { text: randomDummy, targetSlot: null };
+    } else {
+      currentCardData = { 
+        text: q.sequence[currentTargetIdx].text, 
+        targetSlot: q.sequence[currentTargetIdx].target 
+      };
+    }
+
+    const cardElem = document.getElementById("card");
+    cardElem.innerText = currentCardData.text;
+    cardElem.style.display = "block";
+    posY = 0;
+    cardElem.style.top = posY + "px";
+
+    const stageHeight = document.getElementById("stage").clientHeight - 40;
+
+    dropInterval = setInterval(() => {
+      posY += dropSpeed;
+      cardElem.style.top = posY + "px";
+
+      if (posY >= stageHeight) {
+        clearInterval(dropInterval);
+        if (currentCardData.targetSlot !== null) {
+          missAction();
+        } else {
+          spawnNextCard();
+        }
+      }
+    }, 20);
+  }
+
+  function handleInput(selectedSlot) {
+    if (!currentCardData) return;
+
+    clearInterval(dropInterval);
+
+    if (currentCardData.targetSlot === selectedSlot) {
+      // 正解：単語を読み上げる
+      speakText(currentCardData.text);
+
+      score += 20;
+      document.getElementById("score").innerText = score;
+
+      const slotElem = document.getElementById(`slot-${selectedSlot}`);
+      if (slotElem.innerText === '·····') slotElem.innerText = '';
+
+      const div = document.createElement("div");
+      div.className = "placed-item";
+      div.innerText = currentCardData.text;
+      slotElem.appendChild(div);
+
+      currentTargetIdx++;
+      spawnNextCard();
+    } else {
+      missAction();
+    }
+  }
+
+  function missAction() {
+    lives--;
+    updateHearts();
+    if (lives <= 0) {
+      endGame("ゲームオーバー");
+      speakText("Game over");
+    } else {
+      spawnNextCard();
+    }
+  }
+
+  function updateHearts() {
+    let hStr = "";
+    for (let i = 0; i < lives; i++) hStr += "♥";
+    document.getElementById("hearts").innerText = hStr || "―";
+  }
+
+  function endGame(msg) {
+    clearInterval(dropInterval);
+    document.getElementById("card").style.display = "none";
+    document.getElementById("overlay-title").innerText = msg;
+    document.getElementById("overlay").style.display = "flex";
+  }
+</script>
+
 </body>
 </html>
